@@ -18,7 +18,7 @@
 - (2024-03-08) Comming soon.
 
 ## 📝:Results
-Area Under the Curve (AUC) of the frame-level Receiver Operating Characteristic (ROC) as the main evaluation metric for UCF-Crime, and AUC of the frame-level precision-recall curve (AP) is utilized for XD-Violence as the standard evaluation metric.
+We use Area Under the Curve (AUC) of the frame-level Receiver Operating Characteristic (ROC) as the evaluation metric for UCF-Crime, and AUC of the frame-level precision-recall curve (AP) is utilized for XD-Violence as the standard evaluation metric.
 we also evaluate the AUC/AP of abnormal videos (termed by AUC_A/AP_A)
 
 |Method | Dataset  | Feature| AUC | AUC_A |
