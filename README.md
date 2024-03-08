@@ -26,7 +26,7 @@ we also evaluate the AUC/AP of abnormal videos (termed by AUC_A/AP_A)
 |UR-DMU(baseline) |UCF-Crime | I3D   | 86.97 | 70.81 |
 |**GlanceVAD**(Ours)|UCF-Crime | I3D   | **91.96** | **84.94** |
 
-|Method | Dataset  | Feature|  AUC | AUC_A |
+|Method | Dataset  | Feature|  AP | AP_A |
 | ----- | -----    | ----- | ----- |----- |
 |UR-DMU(baseline)| XD-Violence | I3D | 81.66 | 83.51 |
 |**GlanceVAD**(Ours) | XD-Violence | I3D | **89.40** | **89.85** |
