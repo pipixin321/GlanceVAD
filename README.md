@@ -1,2 +1,5 @@
-# GlanceVAD
-Official Implementation of "GlanceVAD: Exploring Glance Supervision for 001 002 Label-efficient Video Anomaly Detection"
+# GlanceVAD: Exploring Glance Supervision for Label-efficient Video Anomaly Detection
+
+<p align="center">
+<img src="assets/GlanceVAD.png" >
+  </p>
