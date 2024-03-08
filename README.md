@@ -35,3 +35,10 @@ we also evaluate the AUC/AP of abnormal videos (termed by AUC_A/AP_A)
 <p align="center">
 <img src="quality.png" >
   </p>
+
+##  🛰️:References
+We apreciate the repos below for the codebase.
+
+- [UR-DMU](https://github.com/henrryzh1/UR-DMU)
+- [S3R](https://github.com/louisYen/S3R)
+- [RTFM](https://github.com/tianyu0207/RTFM)
