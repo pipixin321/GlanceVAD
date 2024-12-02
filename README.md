@@ -90,3 +90,18 @@ We apreciate the repos below for the codebase.
 - [UR-DMU](https://github.com/henrryzh1/UR-DMU)
 - [S3R](https://github.com/louisYen/S3R)
 - [RTFM](https://github.com/tianyu0207/RTFM)
+
+
+## Citation
+
+If you find this repo useful for your research, please consider citing our paper:
+
+```bibtex
+@article{glancevad,
+  title={GlanceVAD: Exploring Glance Supervision for Label-efficient Video Anomaly Detection},
+  author={Zhang, Huaxin and Wang, Xiang and Xu, Xiaohao and Huang, Xiaonan and Han, Chuchu and Wang, Yuehuan and Gao, Changxin and Zhang, Shanjun and Sang, Nong},
+  journal={arXiv preprint arXiv:2403.06154},
+  year={2024}
+}
+```
+---
