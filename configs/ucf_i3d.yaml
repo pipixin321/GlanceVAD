@@ -1,0 +1,35 @@
+# dataset information
+dataset: 'ucf-crime'
+backbone: 'i3d'
+feature_size: 1024
+n_crop: 10
+feature_path: 'data/ucf-crime/i3d'
+data_file_train: 'data/ucf-crime/ucf-crime.training.csv'
+data_file_test: 'data/ucf-crime/ucf-crime.testing.csv'
+ann_file: 'data/ucf-crime/ucf-crime_ground_truth.json'
+glance_file: 'data/ucf-crime/ucf_glance_annotations.csv'
+
+# training params
+lr: 0.0001
+wd: 0.00005
+batch_size: 64
+max_epoch: 1500
+dropout: 0.7
+quantize_size: 200
+sample: 'resize'
+
+# testing params
+evaluate_freq: 5   # frequency of running evaluation
+evaluate_min_step: 0 # mininum of evaluation step
+metrics: 'AUC'
+
+# glance parameters
+min_mining_step: 50
+sigma: 0.1          
+alpha: 0.9        
+
+# version
+gpu_id: 0
+
+run_info: 'GlanceVAD'
+

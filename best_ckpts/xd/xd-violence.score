@@ -1,0 +1,176 @@
+
+**********
+!!python/object:argparse.Namespace
+mode: train
+hyp: xd_i3d
+seed: 0
+workers: 0
+ckpt_path: ./ckpt
+model: ''
+consume: false
+num_abn_mem: 60
+num_nor_mem: 60
+early_fusion: false
+dataset: xd-violence
+backbone: i3d
+feature_size: 1024
+n_crop: 5
+feature_path: data/xd-violence/i3d
+data_file_train: data/xd-violence/xd-violence.training.csv
+data_file_test: data/xd-violence/xd-violence.testing.csv
+ann_file: data/xd-violence/xd-violence_ground_truth.json
+glance_file: data/xd-violence/xd_glance_annotations.csv
+lr: 0.0001
+wd: 5.0e-05
+batch_size: 64
+max_epoch: 1500
+dropout: 0.7
+quantize_size: 200
+sample: resize
+evaluate_freq: 10
+evaluate_min_step: 0
+metrics: AP
+min_mining_step: 100
+sigma: 0.1
+alpha: 0.9
+gpu_id: 1
+run_info: GlanceVAD
+log_path: ./ckpt/xd-violence/log/GlanceVAD
+model_path: ./ckpt/xd-violence/model/GlanceVAD
+output_path: ./ckpt/xd-violence/output/GlanceVAD
+device: !!python/object/apply:torch.device
+- cuda
+- 1
+
+
+
+
+**********
+
+==========
+URDMU(
+  (embedding): Temporal(
+    (conv_1): Sequential(
+      (0): Conv1d(1024, 512, kernel_size=(3,), stride=(1,), padding=(1,))
+      (1): ReLU()
+    )
+  )
+  (self_attn): Transformer(
+    (layers): ModuleList(
+      (0): ModuleList(
+        (0): PreNorm(
+          (norm): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+          (fn): Attention(
+            (attend): Softmax(dim=-1)
+            (to_qkv): Linear(in_features=512, out_features=2048, bias=False)
+            (to_out): Sequential(
+              (0): Linear(in_features=1024, out_features=512, bias=True)
+              (1): Dropout(p=0.5, inplace=False)
+            )
+          )
+        )
+        (1): PreNorm(
+          (norm): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+          (fn): FeedForward(
+            (net): Sequential(
+              (0): Linear(in_features=512, out_features=512, bias=True)
+              (1): GELU(approximate='none')
+              (2): Dropout(p=0.5, inplace=False)
+              (3): Linear(in_features=512, out_features=512, bias=True)
+              (4): Dropout(p=0.5, inplace=False)
+            )
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): PreNorm(
+          (norm): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+          (fn): Attention(
+            (attend): Softmax(dim=-1)
+            (to_qkv): Linear(in_features=512, out_features=2048, bias=False)
+            (to_out): Sequential(
+              (0): Linear(in_features=1024, out_features=512, bias=True)
+              (1): Dropout(p=0.5, inplace=False)
+            )
+          )
+        )
+        (1): PreNorm(
+          (norm): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+          (fn): FeedForward(
+            (net): Sequential(
+              (0): Linear(in_features=512, out_features=512, bias=True)
+              (1): GELU(approximate='none')
+              (2): Dropout(p=0.5, inplace=False)
+              (3): Linear(in_features=512, out_features=512, bias=True)
+              (4): Dropout(p=0.5, inplace=False)
+            )
+          )
+        )
+      )
+    )
+  )
+  (triplet): TripletMarginLoss()
+  (cls_head): ADCLS_head(
+    (mlp): Sequential(
+      (0): Linear(in_features=1024, out_features=128, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=128, out_features=1, bias=True)
+      (3): Sigmoid()
+    )
+  )
+  (Amemory): Memory_Unit(
+    (sig): Sigmoid()
+  )
+  (Nmemory): Memory_Unit(
+    (sig): Sigmoid()
+  )
+  (encoder_mu): Sequential(
+    (0): Linear(in_features=512, out_features=512, bias=True)
+  )
+  (encoder_var): Sequential(
+    (0): Linear(in_features=512, out_features=512, bias=True)
+  )
+  (relu): ReLU()
+  (bce): BCELoss()
+)
+==========
+
+
+        [1m[35mVideo Anomaly Detection[0m
+            - dataset:	 [4m[1m[97mxd-violence[0m
+            - description:	 [1m[32mGlanceVAD[0m
+            - initial AP score: 25.886 %
+            - initial ANO score: 52.871 %
+            - initial FAR: 0.000 %
+            - initial learning rate: 0.0001
+        
++-----------------------------------------------------------------------------------------------------------------------------+
+|  Step  |    AP    |   ANO    |   FAR    |  Training loss  |          Elapsed time          |              Now               |
+-------------------------------------------------------------------------------------------------------------------------------
+|   10   |  55.114  |  69.874  |  0.000   |      1.244      |         0:00:22.621910         |      2024-03-16 18:06:43       | 
+|   20   |  67.467  |  77.746  |  0.000   |      1.114      |         0:00:50.531058         |      2024-03-16 18:07:11       | 
+|   30   |  70.897  |  80.064  |  0.000   |      1.119      |         0:01:12.163418         |      2024-03-16 18:07:33       | 
+|   40   |  74.673  |  80.465  |  0.006   |      1.071      |         0:01:33.772044         |      2024-03-16 18:07:54       | 
+|   50   |  78.734  |  81.682  |  0.000   |      0.995      |         0:01:55.538554         |      2024-03-16 18:08:16       | 
+|   60   |  80.871  |  83.753  |  0.000   |      0.930      |         0:02:24.353787         |      2024-03-16 18:08:45       | 
+|   70   |  82.448  |  84.921  |  0.000   |      0.912      |         0:02:46.207483         |      2024-03-16 18:09:07       | 
+|   80   |  83.024  |  85.276  |  0.000   |      0.930      |         0:03:08.281123         |      2024-03-16 18:09:29       | 
+|   90   |  83.346  |  85.473  |  0.000   |      0.921      |         0:03:37.670599         |      2024-03-16 18:09:58       | 
+|  100   |  83.701  |  85.534  |  0.000   |      1.005      |         0:03:57.536790         |      2024-03-16 18:10:18       | 
+|  120   |  84.047  |  85.574  |  0.768   |      0.935      |         0:04:40.768496         |      2024-03-16 18:11:01       | 
+|  130   |  84.617  |  86.076  |  1.076   |      0.850      |         0:05:02.718456         |      2024-03-16 18:11:23       | 
+|  160   |  85.186  |  86.512  |  0.428   |      0.829      |         0:06:08.008218         |      2024-03-16 18:12:28       | 
+|  170   |  85.676  |  86.992  |  0.590   |      0.826      |         0:06:29.759165         |      2024-03-16 18:12:50       | 
+|  190   |  86.434  |  87.416  |  0.250   |      0.878      |         0:07:12.663232         |      2024-03-16 18:13:33       | 
+|  200   |  87.025  |  88.070  |  0.462   |      0.789      |         0:07:33.845253         |      2024-03-16 18:13:54       | 
+|  230   |  87.427  |  88.730  |  0.791   |      0.718      |         0:08:40.835042         |      2024-03-16 18:15:01       | 
+|  270   |  87.543  |  88.725  |  0.763   |      0.727      |         0:10:05.064551         |      2024-03-16 18:16:25       | 
+|  320   |  87.567  |  89.020  |  0.572   |      0.699      |         0:11:50.317068         |      2024-03-16 18:18:11       | 
+|  370   |  87.916  |  89.613  |  0.784   |      0.696      |         0:13:35.797484         |      2024-03-16 18:19:56       | 
+|  380   |  88.325  |  88.961  |  0.157   |      0.639      |         0:13:57.142846         |      2024-03-16 18:20:18       | 
+|  400   |  88.395  |  89.235  |  0.248   |      0.600      |         0:14:42.558105         |      2024-03-16 18:21:03       | 
+|  430   |  88.694  |  89.375  |  0.103   |      0.680      |         0:15:45.347696         |      2024-03-16 18:22:06       | 
+|  550   |  88.820  |  89.641  |  0.028   |      0.534      |         0:20:04.243264         |      2024-03-16 18:26:25       | 
+|  610   |  88.888  |  89.699  |  0.147   |      0.569      |         0:22:12.569629         |      2024-03-16 18:28:33       | 
+|  680   |  89.019  |  89.587  |  0.119   |      0.509      |         0:24:45.522637         |      2024-03-16 18:31:06       | 
+|  690   |  89.180  |  89.971  |  0.180   |      0.533      |         0:25:06.716972         |      2024-03-16 18:31:27       | 

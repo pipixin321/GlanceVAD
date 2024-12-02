@@ -1,0 +1,5 @@
+.vscode
+__pycache__
+ckpt
+data/ucf-crime/i3d
+data/xd-violence/i3d

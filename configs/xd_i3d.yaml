@@ -1,0 +1,36 @@
+# dataset information
+dataset: 'xd-violence'
+backbone: 'i3d'
+feature_size: 1024
+n_crop: 5
+feature_path: 'data/xd-violence/i3d'
+data_file_train: 'data/xd-violence/xd-violence.training.csv'
+data_file_test: 'data/xd-violence/xd-violence.testing.csv'
+ann_file: 'data/xd-violence/xd-violence_ground_truth.json'
+glance_file: 'data/xd-violence/xd_glance_annotations.csv'
+
+# training params
+lr: 0.0001    
+wd: 0.00005
+batch_size: 64     
+max_epoch: 1500
+dropout: 0.7
+quantize_size: 200
+sample: 'resize'
+
+# testing params
+evaluate_freq: 5   # frequency of running evaluation
+evaluate_min_step: 0 # mininum of evaluation step
+metrics: 'AP'
+
+# glance parameters
+min_mining_step: 100
+sigma: 0.1
+alpha: 0.9
+
+# version
+gpu_id: 1
+
+run_info: 'GlanceVAD'
+
+
