@@ -26,7 +26,8 @@
 - termcolor
 
 ### Data Preparation
-- [UCF-Crime 10-crop I3D features](https://stuxidianeducn-my.sharepoint.com/personal/pengwu_stu_xidian_edu_cn/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fpengwu%5Fstu%5Fxidian%5Fedu%5Fcn%2FDocuments%2FUCF%2DCrime%2FI3D&ga=1)
+- [UCF-Crime 10-crop I3D features](https://stuxidianeducn-my.sharepoint.com/:f:/g/personal/pengwu_stu_xidian_edu_cn/EvYcZ5rQZClGs_no2g-B0jcB4ynsonVQIreHIojNnUmPyA?e=xNrGxc)
+
 - [XD-Violence 5-crop I3D features](https://roc-ng.github.io/XD-Violence/)
 
 Please ensure the data structure is as below.
