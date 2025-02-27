@@ -3,6 +3,7 @@ dataset: 'ucf-crime'
 backbone: 'i3d'
 feature_size: 1024
 n_crop: 10
+seg: 'itp' #seq
 feature_path: 'data/ucf-crime/i3d'
 data_file_train: 'data/ucf-crime/ucf-crime.training.csv'
 data_file_test: 'data/ucf-crime/ucf-crime.testing.csv'

@@ -6,6 +6,68 @@ import pandas as pd
 import torch.utils.data as data
 
 
+class SelOrPad:
+    def __init__(self, seg_len, random_extract=True):
+        self.seg_len = seg_len
+        self.random_extract = random_extract
+
+    def process(self, feat):
+        if len(feat) > self.seg_len:
+            return self._extract(feat)
+        return self._pad(feat)
+
+    def _extract(self, feat):
+        if self.random_extract:
+            return self._random_extract(feat)
+        return self._uniform_extract(feat)
+
+    def _random_extract(self, feat):
+        start = np.random.randint(len(feat) - self.seg_len)
+        return feat[start:start + self.seg_len]
+
+    def _uniform_extract(self, feat):
+        indices = np.linspace(0, len(feat)-1, self.seg_len, dtype=np.uint16)
+        return feat[indices]
+
+    def _pad(self, feat):
+        if feat.shape[0] < self.seg_len:
+            pad_size = self.seg_len - feat.shape[0]
+            return np.pad(feat, ((0, pad_size), (0, 0)), mode='constant')
+        return feat
+
+    def __call__(self, feat):
+        return self.process(feat)
+
+class Interpolate:
+    def __init__(self, seg_len):
+        self.seg_len = seg_len
+
+    def pool(self, feat):
+        if feat.ndim == 2: return self._pool_single(feat), None
+        elif feat.ndim == 3: return self._pool_batch(feat), None
+        else: raise ValueError("Input features must be 2D (T, D) or 3D (N, T, D)")
+
+    def _pool_single(self, feat):
+        new_feat = np.zeros((self.seg_len, feat.shape[1]), dtype=np.float32)
+        r = np.linspace(0, len(feat), self.seg_len + 1, dtype=int)
+        for i in range(self.seg_len):
+            if r[i] != r[i+1]:
+                new_feat[i] = np.mean(feat[r[i]:r[i+1]], axis=0)
+            else:
+                new_feat[i] = feat[r[i]]
+        return new_feat
+
+    def _pool_batch(self, feat):
+        pooled_features = []
+        for n in range(feat.shape[0]):
+            pooled = self._pool_single(feat[n])
+            pooled_features.append(pooled[np.newaxis, ...])
+        return np.concatenate(pooled_features, axis=0)
+
+    def __call__(self, feat):
+        return self.pool(feat)
+
+
 class Dataset(data.Dataset):
     def __init__(self, args, is_normal=True, test_mode=False):
         self.args = args
@@ -16,6 +78,11 @@ class Dataset(data.Dataset):
         self.n_crop = args.n_crop
         self.feature_size = args.feature_size
         self.quantize_size = args.quantize_size
+        
+        if args.seg == 'itp': self.process_feat = Interpolate(self.quantize_size)
+        elif args.seg == 'seq': 
+            raise NotImplementedError
+            self.process_feat = SelOrPad(self.quantize_size)
         
         self.subset = 'test' if test_mode else 'train'
         self.ann_file = args.ann_file
@@ -30,7 +97,6 @@ class Dataset(data.Dataset):
         # >> load glance anotations
         assert os.path.exists(args.glance_file)
         self.glance_annotations =  pd.read_csv(args.glance_file)
-
 
 
     def _prepare_data(self, video_list):
@@ -93,51 +159,24 @@ class Dataset(data.Dataset):
         else:
             points = []
             points = self.glance_annotations.loc[self.glance_annotations['video-id'] == vid_name, 'glance'].values
-            features, point_label = self.process_feat(features, points, self.quantize_size)
+            features = self.process_feat(features, points, self.quantize_size)
+            point_label == self.get_point_label(points, features.shape[-2])
             sample = dict()
             sample['vid_name'] = vid_name
             sample['features'] = features
             sample['label'] = label
             sample['point_label'] = point_label
             return sample
-
-    def process_feat(self, feat, points, length):
-        #[T,D]
-        if feat.ndim == 2: 
-            num_seg = feat.shape[0]
-            new_feat = np.zeros((length, feat.shape[1])).astype(np.float32)
-            r = np.linspace(0, len(feat), length + 1, dtype = np.int)
-            for i in range(length):
-                if r[i] != r[i+1]:
-                    new_feat[i,:] = np.mean(feat[r[i]:r[i+1],:], 0)
-                else:
-                    new_feat[i:i+1,:] = feat[r[i]:r[i]+1,:]
-        #[N,T,D]
-        else: 
-            feat_all = []
-            for n in range(feat.shape[0]):
-                feat_n = feat[n]
-                new_feat = np.zeros((length, feat_n.shape[1])).astype(np.float32)
-                r = np.linspace(0, len(feat_n), length + 1, dtype = np.int)
-                for i in range(length):
-                    if r[i] != r[i+1]:
-                        new_feat[i,:] = np.mean(feat_n[r[i]:r[i+1],:], 0)
-                    else:
-                        new_feat[i:i+1,:] = feat_n[r[i]:r[i]+1,:]
-                feat_all.append(np.expand_dims(new_feat, axis=0))
-            new_feat = np.concatenate(feat_all, axis=0)
-
-
-        # points
-        num_seg = feat.shape[-2]
-        temp_point_anno = np.zeros([length], dtype=np.float32)
+            
+    def get_point_label(points, feat_len):
+        ## if selorpad and feat_len > self.quantize_size 
+        #   use only points present in chosen feat segments/idxs
+        temp_point_anno = np.zeros([self.quantize_size], dtype=np.float32)
         if len(points)>0 and points[0]>0:
             for p in points:
-                idx_seg = int((p/16)/num_seg*length)
+                idx_seg = int((p/16)/feat_len*self.quantize_size)
                 temp_point_anno[idx_seg] = 1
-
-
-        return new_feat, temp_point_anno
+        return temp_point_anno
     
     def shift_array(self, array, N):
         shifted_array = np.zeros_like(array)  

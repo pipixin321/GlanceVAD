@@ -3,6 +3,7 @@ dataset: 'xd-violence'
 backbone: 'i3d'
 feature_size: 1024
 n_crop: 5
+seg: 'itp' #seq
 feature_path: 'data/xd-violence/i3d'
 data_file_train: 'data/xd-violence/xd-violence.training.csv'
 data_file_test: 'data/xd-violence/xd-violence.testing.csv'
