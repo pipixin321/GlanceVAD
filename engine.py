@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 import os, json
 from sklearn.metrics import auc, roc_curve, precision_recall_curve, confusion_matrix, average_precision_score
-import utils
+from utils import gaussian_kernel_mining, temporal_gaussian_splatting
 
 
 def cal_false_alarm(gt, preds, threshold=0.5):
@@ -17,7 +17,7 @@ def cal_false_alarm(gt, preds, threshold=0.5):
     return far
 
     
-def train(step, args, tb_logger, regular_loader, anomaly_loader, model, optimizer, scheduler=None):
+def train(step, args, tb_logger, regular_loader, anomaly_loader, model, loss_fx, optimizer, scheduler=None):
     with torch.set_grad_enabled(True):
         model.train()
         model.flag = 'Train'
@@ -31,24 +31,27 @@ def train(step, args, tb_logger, regular_loader, anomaly_loader, model, optimize
         outputs = model(video)
         cost, loss_dict = model.criterion(args, outputs, regular_label, anomaly_label, point_label, anomaly_sample)
 
-
         # >> GlanceVAD
+        abn_scores = outputs['video_scores'][args.batch_size:]
+        #abn_seqlen = torch.sum(torch.max(torch.abs(anomaly_video), dim=2)[0] > 0, 1) #B/2
+        loss_abn = loss_fx(abn_scores, point_lael, step) #,abn_seqlen
+        
         # Guassian Mining
-        loss_abn = 0
-        bce_criterion = nn.BCELoss()
-        abn_score = outputs['video_scores'][args.batch_size:]
-        abn_kernel = utils.gaussian_kernel_mining(args, abn_score.detach().cpu(), point_label)
-        # Temporal Gaussian Splatting
-        sigma = args.sigma
-        if step < args.min_mining_step:
-            rendered_score = utils.temporal_gaussian_splatting(point_label, 'normal', params={'sigma':sigma})
-        else:
-            rendered_score = utils.temporal_gaussian_splatting(abn_kernel, 'normal', params={'sigma':sigma})
-        rendered_score = rendered_score.to(args.device)
-
-        loss_abn = bce_criterion(abn_score, rendered_score.to(args.device)).mean()
+        #loss_abn = 0
+        #bce_criterion = nn.BCELoss()
+        #abn_score = outputs['video_scores'][args.batch_size:]
+        #abn_kernel = gaussian_kernel_mining(args, abn_scores.detach().cpu(), point_label)
+        ## Temporal Gaussian Splatting
+        #sigma = args.sigma
+        #if step < args.min_mining_step:
+        #    rendered_score = temporal_gaussian_splatting(point_label, 'normal', params={'sigma':sigma})
+        #else:
+        #    rendered_score = temporal_gaussian_splatting(abn_kernel, 'normal', params={'sigma':sigma})
+        #rendered_score = rendered_score.to(args.device)
+        #loss_abn = bce_criterion(abn_scores, rendered_score.to(args.device)).mean()
+        
         loss_dict['loss_abn'] = loss_abn
-        cost += loss_abn
+        cost = cost + loss_abn
 
         optimizer.zero_grad()
         cost.backward()
@@ -64,7 +67,7 @@ def train(step, args, tb_logger, regular_loader, anomaly_loader, model, optimize
 
         
 def inference(step, args, test_loader, model, tb_logger=None, 
-              cal_FAR=True, cache=False):
+            cal_FAR=True, cache=False):
     with torch.no_grad():
         model.eval()
         model.flag = "Test"
