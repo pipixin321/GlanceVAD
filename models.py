@@ -22,7 +22,6 @@ class Memory_Unit(Module):
         if self.memory_block is not None:
             self.memory_block.data.uniform_(-stdv, stdv)
     
-       
     def forward(self, data):  ####data size---> B,T,D       K,V size--->K,D
         attention = self.sig(torch.einsum('btd,kd->btk', data, self.memory_block) / (self.dim**0.5))   #### Att---> B,T,K
         temporal_att = torch.topk(attention, self.nums//16+1, dim = -1)[0].mean(-1)
@@ -112,7 +111,7 @@ class URDMU(Module):
 
             _, P_index = torch.topk(N_Aatt, t//16 + 1, dim=-1)
             positivte_nx = torch.gather(A_x, 1, P_index.unsqueeze(2).expand([-1, -1, x.size(-1)])).mean(1).reshape(b//2,n,-1).mean(1)
-               
+
             triplet_margin_loss = self.triplet(norm(anchor_nx), norm(positivte_nx), norm(negative_ax))
 
             N_aug_mu = self.encoder_mu(N_aug)
@@ -127,7 +126,7 @@ class URDMU(Module):
             kl_loss = self.latent_loss(N_aug_mu, N_aug_var)
             A_Naug = self.encoder_mu(A_Naug)
             N_Aaug = self.encoder_mu(N_Aaug)
-          
+
             distance = torch.relu(100 - torch.norm(negative_ax_new, p=2, dim=-1) + torch.norm(anchor_nx_new, p=2, dim=-1)).mean()
             x = torch.cat((x, (torch.cat([N_aug_new + A_Naug, A_aug_new + N_Aaug], dim=0))), dim=-1)
             pre_att = self.cls_head(x).reshape((b, n, -1)).mean(1)
@@ -151,7 +150,6 @@ class URDMU(Module):
 
             x = torch.cat([x, A_aug + N_aug], dim=-1)
             pre_att = self.cls_head(x).reshape((b, n, -1)).mean(1)
-
 
             return {"video_scores":pre_att}
 

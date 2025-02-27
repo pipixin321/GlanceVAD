@@ -9,7 +9,7 @@ from tqdm import tqdm
 import datetime
 
 
-from utils import set_seed, save_best_record, color
+from utils import set_seed, save_best_record, color, GlanceLoss
 from options import parse_args
 from dataset import Dataset
 from models import URDMU
@@ -47,7 +47,8 @@ def main():
         test_loader = DataLoader(test_set, batch_size=1, shuffle=False,
                                 num_workers=args.workers, pin_memory=False, )
         
-        # >> Optimizer and Test info
+        # >> Loss, Optimizer and Test info
+        loss_fx = GlanceLoss(args)
         optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(0.9,0.999), weight_decay=args.wd)
         test_info = {'epoch': [], 'elapsed': [], 'now': [], 'train_loss': [], 'test_{metrics}'.format(metrics=args.metrics): [], 'ANO':[], 'FAR':[]}
         tb_logger = Logger(args.log_path)
@@ -106,7 +107,7 @@ def main():
                 loadera_iter = iter(train_anomaly_loader)
             
             # >> training
-            loss, loss_dict = train(step, args, tb_logger, loadern_iter, loadera_iter, model, optimizer)
+            loss, loss_dict = train(step, args, tb_logger, loadern_iter, loadera_iter, model, loss_fx, optimizer)
             
             # >> testing
             if step % args.evaluate_freq == 0 and step > args.evaluate_min_step:
@@ -129,7 +130,7 @@ def main():
 
             # >> update progress bar
             p_bar.set_description('[{dataset}]:loss: {loss:.3f}, {metric}: {score:.2f}, best: {best:.2f}' \
-                                  .format(dataset=color(args.dataset), loss = loss, metric=args.metrics,\
+                                .format(dataset=color(args.dataset), loss = loss, metric=args.metrics,\
                                            score = score * 100, best=best_result*100))
 
         with open(log_filepath, 'a') as f:
