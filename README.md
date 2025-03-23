@@ -1,4 +1,4 @@
-# GlanceVAD: Exploring Glance Supervision for Label-efficient Video Anomaly Detection
+# GlanceVAD: Exploring Glance Supervision for Label-efficient Video Anomaly Detection (ICME 2025)
 
 <p align="center">
 <img src="assets/GlanceVAD.png" >
@@ -15,7 +15,8 @@
   </p>
 
 ## 🆕:Updates
-- (2024-12-02)  Code and annotations are available now.
+- (2025-03-21) GlanceVAD is accepted by ICME2025 (IEEE International Conference on Multimedia & Expo 2025) !
+- (2024-12-02) Code and annotations are available now.
 - (2024-03-08) Comming soon.
 
 ## 📖:Preparation
